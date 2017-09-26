@@ -2,25 +2,16 @@
 
 void getTriggerWeight(double& ScaleFactor, double& ScaleFactorerror, double HT, double pt, int nB);
 
-void addTriggerWeightToTree(){
-
-  //string filepath = "/scratch/dsalerno/tth/80x_M17/V25_systematics_nBCSVM_CR_v1_extra/JetHT.root";
-  //string filepath = "/scratch/dsalerno/tth/80x_M17/V25_systematics_nBCSVM_CR_v1_extra/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8.root";
-  //string filepath = "/scratch/dsalerno/tth/80x_M17/V25_systematics_nBCSVM_CR_v1_extra/ttHTobb_M125_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8.root";
-  //string filepath = "/scratch/dsalerno/tth/80x_M17/V25_systematics_nBCSVM_CR_v1_extra/ttHToNonbb_M125_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8.root";
-  //string filepath = "/scratch/dsalerno/tth/80x_M17/V25_systematics_nBCSVM_CR_v1_extra/ST_s-channel_4f_InclusiveDecays_13TeV-amcatnlo-pythia8.root";
-  //string filepath = "/scratch/dsalerno/tth/80x_M17/V25_systematics_nBCSVM_CR_v1_extra/ST_t-channel_antitop_4f_inclusiveDecays_TuneCUETP8M2T4_13TeV-powhegV2-madspin.root";
-  //string filepath = "/scratch/dsalerno/tth/80x_M17/V25_systematics_nBCSVM_CR_v1_extra/ST_t-channel_top_4f_inclusiveDecays_TuneCUETP8M2T4_13TeV-powhegV2-madspin.root";
-  //string filepath = "/scratch/dsalerno/tth/80x_M17/V25_systematics_nBCSVM_CR_v1_extra/ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M2T4.root";
-  //string filepath = "/scratch/dsalerno/tth/80x_M17/V25_systematics_nBCSVM_CR_v1_extra/ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M2T4.root";
-  //string filepath = "/scratch/dsalerno/tth/80x_M17/V25_systematics_nBCSVM_CR_v1_extra/TTWJetsToQQ_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8.root";
-  //string filepath = "/scratch/dsalerno/tth/80x_M17/V25_systematics_nBCSVM_CR_v1_extra/TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8.root";
-  //string filepath = "/scratch/dsalerno/tth/80x_M17/V25_systematics_nBCSVM_CR_v1_extra/WJetsToQQ_HT180_13TeV-madgraphMLM-pythia8.root";
-  //string filepath = "/scratch/dsalerno/tth/80x_M17/V25_systematics_nBCSVM_CR_v1_extra/ZJetsToQQ_HT600toInf_13TeV-madgraph.root";
-  //string filepath = "/scratch/dsalerno/tth/80x_M17/V25_systematics_nBCSVM_CR_v1_extra/WW_TuneCUETP8M1_13TeV-pythia8.root";
-  //string filepath = "/scratch/dsalerno/tth/80x_M17/V25_systematics_nBCSVM_CR_v1_extra/WZ_TuneCUETP8M1_13TeV-pythia8.root";
-
-  TFile* file = TFile::Open( (filepath).c_str(), "update" );
+void addTriggerWeightToTree(string filename = ""){
+  if (filename != ""){
+    TFile* testfile = TFile::Open( (filename).c_str(), "read" );
+    if (testfile == NULL){
+      cout << "Inputfile is NULL" << endl;
+      return;
+    }
+    delete testfile;
+  }
+  TFile* file = TFile::Open( (filename).c_str(), "update" );
 
   // load tree
   TTree *tree = (TTree*)file->Get("tree");
@@ -62,7 +53,7 @@ void addTriggerWeightToTree(){
   // start the clock....
   auto t0 = chrono::high_resolution_clock::now();
 
-  cout << "doing " << filepath << endl;
+  cout << "doing " << filename << endl;
   cout << "totalEntries " << totalEntries << endl;
   // loop over events
   for(int entry=0; entry < totalEntries; entry++){
