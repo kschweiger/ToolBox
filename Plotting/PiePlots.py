@@ -194,10 +194,10 @@ def main():
 
 
     if plotfromSparse:
-        pathtoSparse = "/Users/korbinianschweiger/Code/data/ttH/sparseHistos/V25_lepVetoLoose_systematics_v1/"
+        pathtoSparse = "/Users/korbinianschweiger/Code/data/ttH/sparseHistos/V25_lepVetoLoose_systematics_v1_evFix/"
         files = {"CR" : "merged_CR.root",
-                 "VR" : "merged_VR_ddQCD.root",
-                 "CR2" : "merged_CR2.root",
+                 #"VR" : "merged_VR_ddQCD.root",
+                 #"CR2" : "merged_CR2.root",
                  "SR" : "merged_SR_ddQCD.root"
                 }
         for key in files:
