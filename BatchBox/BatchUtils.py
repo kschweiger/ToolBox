@@ -3,13 +3,13 @@ import stat
 import imp
 import ssl
 
-def get_dataset_files(dataset, storeprefix):
+def get_dataset_files(dataset, storeprefix, dbs_instance):
     das_client=imp.load_source("das_client", "/cvmfs/cms.cern.ch/slc6_amd64_gcc530/cms/das_client/v02.17.04/bin/das_client.py")
     print 'getting files for',dataset
     ckey=das_client.x509()
     cert=das_client.x509()
     das_client.check_auth(ckey)
-    data=das_client.get_data("https://cmsweb.cern.ch","file dataset="+dataset+" instance=prod/phys03",0,0,0,300,ckey,cert)
+    data=das_client.get_data("https://cmsweb.cern.ch","file dataset="+dataset+" instance="+dbs_instance,0,0,0,300,ckey,cert)
     nevents=0
     size=0
     nfiles=0
@@ -37,7 +37,7 @@ def submission( scriptlist , batchsystem, logpath):
             print "qsub -l h_vmem=4g -o "+logpath+'/jobout_'+str(script.split("/")[-1][:-3])+" -e "+logpath+'/joberr_'+str(script.split("/")[-1][:-3])+" "+script
             os.system("qsub -l h_vmem=4g -o "+logpath+'/jobout_'+str(script.split("/")[-1][:-3])+" -e "+logpath+'/joberr_'+str(script.split("/")[-1][:-3])+" "+script)
 
-def create_script(name, ijob, cmsswbase, outputfolder, base_path, scriptfolder, execString):
+def create_script(name, ijob, cmsswbase, base_path, scriptfolder, execString):
     outfilename= name+"_"+str(ijob)
     script='#!/bin/bash\n'
     script+='export VO_CMS_SW_DIR=/cvmfs/cms.cern.ch\n'
@@ -55,6 +55,7 @@ def create_script(name, ijob, cmsswbase, outputfolder, base_path, scriptfolder, 
     st = os.stat(filename)
     os.chmod(filename, st.st_mode | stat.S_IEXEC)
 
+    return filename
 
 
 def initialize():
