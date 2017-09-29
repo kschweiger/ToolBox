@@ -233,9 +233,6 @@ void getTriggerWeight(double& ScaleFactor, double& ScaleFactorerror, double HT, 
       case 6: SF = pt120[hBin];
               SFerr = pt120err[hBin];
               break;
-      case 7: SF = pt120[hBin];
-              SFerr = pt120err[hBin];
-              break;
     }
     //cout << "SF = " << SF << " SFerr  =" <<  SFerr << endl;
 
