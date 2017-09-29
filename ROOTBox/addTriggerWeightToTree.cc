@@ -212,31 +212,28 @@ void getTriggerWeight(double& ScaleFactor, double& ScaleFactorerror, double HT, 
     //cout << "hBin = " << hBin << " pbin  =" <<  pbin << endl;
 
     switch(pbin) {
-      case 0: SF = pt30[hBin];
-              SFerr = pt30err[hBin];
-              break;
-      case 1: SF = pt40[hBin];
+      case 0: SF = pt40[hBin];
               SFerr = pt40err[hBin];
               break;
-      case 2: SF = pt45[hBin];
+      case 1: SF = pt45[hBin];
               SFerr = pt45err[hBin];
               break;
-      case 3: SF = pt50[hBin];
+      case 2: SF = pt50[hBin];
               SFerr = pt50err[hBin];
               break;
-      case 4: SF = pt55[hBin];
+      case 3: SF = pt55[hBin];
               SFerr = pt55err[hBin];
               break;
-      case 5: SF = pt60[hBin];
+      case 4: SF = pt60[hBin];
               SFerr = pt60err[hBin];
               break;
-      case 6: SF = pt70[hBin];
+      case 5: SF = pt70[hBin];
               SFerr = pt70err[hBin];
               break;
-      case 7: SF = pt120[hBin];
+      case 6: SF = pt120[hBin];
               SFerr = pt120err[hBin];
               break;
-      case 8: SF = pt120[hBin];
+      case 7: SF = pt120[hBin];
               SFerr = pt120err[hBin];
               break;
     }
