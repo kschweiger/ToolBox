@@ -11,7 +11,7 @@ TGraphAsymmErrors* getTGraphFromFile(const std::string filename, const std::stri
 
 void AddLeptonWeights(std::string filename = ""){
 
-  std::string basepathtoHistos = ""; //TODO: Set Base path of SF root files!
+  std::string basepathtoHistos = "/mnt/t3nfs01/data01/shome/koschwei/ToolBox/ROOTBox/"; //TODO: Set Base path of SF root files!
 
   //Histograms for Muon trigger ScaleFactors
   TH2F* hMuTriggerRunBF = getHistoFromFile(basepathtoHistos+"EfficienciesAndSF_RunBtoF.root", "IsoMu24_OR_IsoTkMu24_PtEtaBins/pt_abseta_ratio");
@@ -59,39 +59,71 @@ void AddLeptonWeights(std::string filename = ""){
   float LeptonSFerr_ = 0;
 
   // variables to save in new trees
-  float MuTriggerWeight;
-  float MuTriggerWeighterror;
-  float MuTriggerWeightUp;
-  float MuTriggerWeightDown;
+  float MuTriggerWeightBF;
+  float MuTriggerWeightBFerror;
+  float MuTriggerWeightBFUp;
+  float MuTriggerWeightBFDown;
 
-  float MuWeight;
-  float MuWeighterror;
-  float MuWeightUp;
-  float MuWeightDown;
+  float MuWeightBF;
+  float MuWeightBFerror;
+  float MuWeightBFUp;
+  float MuWeightBFDown;
 
-  TBranch *bTW = tree->Branch("MuTriggerWeight",  &MuTriggerWeight, "MuTriggerWeight/F");
-  TBranch *bTWerr = tree->Branch("MuTriggerWeightErr",  &MuTriggerWeighterror, "MuTriggerWeightErr/F");
-  TBranch *bTWUp = tree->Branch("MuTriggerWeightUp",  &MuTriggerWeightUp, "MuTriggerWeightUp/F");
-  TBranch *bTWDown = tree->Branch("MuTriggerWeightDown",  &MuTriggerWeightDown, "MuTriggerWeightDown/F");
+  float MuTriggerWeightGH;
+  float MuTriggerWeightGHerror;
+  float MuTriggerWeightGHUp;
+  float MuTriggerWeightGHDown;
 
-  TBranch *bLW = tree->Branch("MuWeight",  &MuTriggerWeight, "MuWeight/F");
-  TBranch *bLWerr = tree->Branch("MuWeightErr",  &MuTriggerWeighterror, "MuWeightErr/F");
-  TBranch *bLWUp = tree->Branch("MuWeightUp",  &MuTriggerWeightUp, "MuWeightUp/F");
-  TBranch *bLWDown = tree->Branch("MuWeightDown",  &MuTriggerWeightDown, "MuWeightDown/F");
+  float MuWeightGH;
+  float MuWeightGHerror;
+  float MuWeightGHUp;
+  float MuWeightGHDown;
+
+  
+  TBranch *bTW = tree->Branch("MuTriggerWeightBF",  &MuTriggerWeightBF, "MuTriggerWeightBF/F");
+  TBranch *bTWerr = tree->Branch("MuTriggerWeightBFErr",  &MuTriggerWeightBFerror, "MuTriggerWeightBFErr/F");
+  TBranch *bTWUp = tree->Branch("MuTriggerWeightBFUp",  &MuTriggerWeightBFUp, "MuTriggerWeightBFUp/F");
+  TBranch *bTWDown = tree->Branch("MuTriggerWeightBFDown",  &MuTriggerWeightBFDown, "MuTriggerWeightBFDown/F");
+
+  TBranch *bLW = tree->Branch("MuWeightBF",  &MuTriggerWeightBF, "MuWeightBF/F");
+  TBranch *bLWerr = tree->Branch("MuWeightBFErr",  &MuTriggerWeightBFerror, "MuWeightBFErr/F");
+  TBranch *bLWUp = tree->Branch("MuWeightBFUp",  &MuTriggerWeightBFUp, "MuWeightBFUp/F");
+  TBranch *bLWDown = tree->Branch("MuWeightBFDown",  &MuTriggerWeightBFDown, "MuWeightBFDown/F");
+
+  
+  TBranch *bTWGH = tree->Branch("MuTriggerWeightGH",  &MuTriggerWeightGH, "MuTriggerWeightGH/F");
+  TBranch *bTWGHerr = tree->Branch("MuTriggerWeightGHErr",  &MuTriggerWeightGHerror, "MuTriggerWeightGHErr/F");
+  TBranch *bTWGHUp = tree->Branch("MuTriggerWeightGHUp",  &MuTriggerWeightGHUp, "MuTriggerWeightGHUp/F");
+  TBranch *bTWGHDown = tree->Branch("MuTriggerWeightGHDown",  &MuTriggerWeightGHDown, "MuTriggerWeightGHDown/F");
+
+  TBranch *bLWGH = tree->Branch("MuWeightGH",  &MuTriggerWeightGH, "MuWeightGH/F");
+  TBranch *bLWGHerr = tree->Branch("MuWeightGHErr",  &MuTriggerWeightGHerror, "MuWeightGHErr/F");
+  TBranch *bLWGHUp = tree->Branch("MuWeightGHUp",  &MuTriggerWeightGHUp, "MuWeightGHUp/F");
+  TBranch *bLWGHDown = tree->Branch("MuWeightGHDown",  &MuTriggerWeightGHDown, "MuWeightGHDown/F");
   //tree->Branch("jet_eta",      jet_eta,       "jet_eta[njet]/F");
 
   // Connect the branches with their member variables.
   if(!tree) return;
-  tree->SetBranchAddress("MuTriggerWeight", &MuTriggerWeight);
-  tree->SetBranchAddress("MuTriggerWeightErr", &MuTriggerWeighterror);
-  tree->SetBranchAddress("MuTriggerWeightUp", &MuTriggerWeightUp);
-  tree->SetBranchAddress("MuTriggerWeightDown", &MuTriggerWeightDown);
+  tree->SetBranchAddress("MuTriggerWeightBF", &MuTriggerWeightBF);
+  tree->SetBranchAddress("MuTriggerWeightBFErr", &MuTriggerWeightBFerror);
+  tree->SetBranchAddress("MuTriggerWeightBFUp", &MuTriggerWeightBFUp);
+  tree->SetBranchAddress("MuTriggerWeightBFDown", &MuTriggerWeightBFDown);
 
+  tree->SetBranchAddress("MuWeightBF", &MuWeightBF);
+  tree->SetBranchAddress("MuWeightBFErr", &MuWeightBFerror);
+  tree->SetBranchAddress("MuWeightBFUp", &MuWeightBFUp);
+  tree->SetBranchAddress("MuWeightBFDown", &MuWeightBFDown);
 
-  tree->SetBranchAddress("MuWeight", &MuWeight);
-  tree->SetBranchAddress("MuWeightErr", &MuWeighterror);
-  tree->SetBranchAddress("MuWeightUp", &MuWeightUp);
-  tree->SetBranchAddress("MuWeightDown", &MuWeightDown);
+  
+  tree->SetBranchAddress("MuTriggerWeightGH", &MuTriggerWeightGH);
+  tree->SetBranchAddress("MuTriggerWeightGHErr", &MuTriggerWeightGHerror);
+  tree->SetBranchAddress("MuTriggerWeightGHUp", &MuTriggerWeightGHUp);
+  tree->SetBranchAddress("MuTriggerWeightGHDown", &MuTriggerWeightGHDown);
+
+  tree->SetBranchAddress("MuWeightGH", &MuWeightGH);
+  tree->SetBranchAddress("MuWeightGHErr", &MuWeightGHerror);
+  tree->SetBranchAddress("MuWeightGHUp", &MuWeightGHUp);
+  tree->SetBranchAddress("MuWeightGHDown", &MuWeightGHDown);
 
   tree->SetBranchAddress("jets_pt", &jetpt);
   tree->SetBranchAddress("jets_eta", &jeteta);
@@ -114,31 +146,53 @@ void AddLeptonWeights(std::string filename = ""){
     tree->GetEntry(entry);
     numEvents++;
 
-    std::array<float, 4> Triggerweight = {0.0, 0.0, 0.0, 0.0};
-    std::array<float, 4> Leptonweight = {0.0, 0.0, 0.0, 0.0};
+    std::array<float, 4> TriggerweightBF = {-99.0, -99.0, -99.0, -99.0};
+    std::array<float, 4> LeptonweightBF = {-99.0, -99.0, -99.0, -99.0};
 
-    //cout << "Run = " << run << " LepID = " << lepID[0] << " Lep pT = " << leppt[0] << " Let eta = " <<  fabs( lepeta[0] ) << endl;
+    std::array<float, 4> TriggerweightGH = {-99.0, -99.0, -99.0, -99.0};
+    std::array<float, 4> LeptonweightGH = {-99.0, -99.0, -99.0, -99.0};
+
+    
+    cout << "-------------------------" << endl;
+    
 
     if (lepID[0] == 13 || lepID[0] == -13){
-      if (run <= 280385){
-        Triggerweight = getTriggerWeight(hMuTriggerRunBF, leppt[0], lepeta[0]);
-        Leptonweight = getLeptonWeight(hMuIDRunBF, hMuIsoRunBF, grMuTrkRunBF, leppt[0], lepeta[0]);
-      }
-      else {
-        Triggerweight = getTriggerWeight(hMuTriggerRunGH, leppt[0], lepeta[0]);
-        Leptonweight = getLeptonWeight(hMuIDRunGH, hMuIsoRunGH, grMuTrkRunGH, leppt[0], lepeta[0]);
+      if (leppt[0] >= 26){
+
+	TriggerweightBF = {1.0, 1.0, 1.0, 1.0};
+	LeptonweightBF = {1.0, 1.0, 1.0, 1.0};
+	
+	TriggerweightGH = {1.0, 1.0, 1.0, 1.0};
+	LeptonweightGH = {1.0, 1.0, 1.0, 1.0};
+
+        TriggerweightBF = getTriggerWeight(hMuTriggerRunBF, leppt[0], lepeta[0]);
+        LeptonweightBF = getLeptonWeight(hMuIDRunBF, hMuIsoRunBF, grMuTrkRunBF, leppt[0], lepeta[0]);
+
+        TriggerweightGH = getTriggerWeight(hMuTriggerRunGH, leppt[0], lepeta[0]);
+        LeptonweightGH = getLeptonWeight(hMuIDRunGH, hMuIsoRunGH, grMuTrkRunGH, leppt[0], lepeta[0]);
+	
       }
     }
 
-    MuTriggerWeight = Triggerweight[0] ;
-    MuTriggerWeighterror = Triggerweight[1] ;
-    MuTriggerWeightUp = Triggerweight[2];
-    MuTriggerWeightDown = Triggerweight[3];
+    MuTriggerWeightBF = TriggerweightBF[0] ;
+    MuTriggerWeightBFerror = TriggerweightBF[1] ;
+    MuTriggerWeightBFUp = TriggerweightBF[2];
+    MuTriggerWeightBFDown = TriggerweightBF[3];
 
-    MuWeight = Leptonweight[0];
-    MuWeighterror = Leptonweight[1];
-    MuWeightUp = Leptonweight[2];
-    MuWeightDown = Leptonweight[3];
+    MuWeightBF = LeptonweightBF[0];
+    MuWeightBFerror = LeptonweightBF[1];
+    MuWeightBFUp = LeptonweightBF[2];
+    MuWeightBFDown = LeptonweightBF[3];
+
+    MuTriggerWeightGH = TriggerweightGH[0] ;
+    MuTriggerWeightGHerror = TriggerweightGH[1] ;
+    MuTriggerWeightGHUp = TriggerweightGH[2];
+    MuTriggerWeightGHDown = TriggerweightGH[3];
+
+    MuWeightGH = LeptonweightGH[0];
+    MuWeightGHerror = LeptonweightGH[1];
+    MuWeightGHUp = LeptonweightGH[2];
+    MuWeightGHDown = LeptonweightGH[3];
 
 
     bTW->Fill();
@@ -150,6 +204,16 @@ void AddLeptonWeights(std::string filename = ""){
     bLWerr->Fill();
     bLWUp->Fill();
     bLWDown->Fill();
+    
+    bTWGH->Fill();
+    bTWGHerr->Fill();
+    bTWGHUp->Fill();
+    bTWGHDown->Fill();
+
+    bLWGH->Fill();
+    bLWGHerr->Fill();
+    bLWGHUp->Fill();
+    bLWGHDown->Fill();
   }//end loop over events
 
   //tree->Print();
@@ -212,8 +276,8 @@ std::array<float,4> getTriggerWeight(TH2F* hSF, float pt, float muonEta){
   nomval=hSF->GetBinContent( thisBin );
   error=hSF->GetBinError( thisBin );
 
-  //cout << "Mu Trigger" << endl;
-  //cout << "Nom = " << nomval << " Err = " << error << endl;
+  cout << "Mu Trigger" << endl;
+  cout << "Bin =" << thisBin << " Nom = " << nomval << " Err = " << error << endl;
 
   std::array<float, 4> retarray =  {nomval, error, nomval+error, nomval-error};
 
@@ -222,7 +286,7 @@ std::array<float,4> getTriggerWeight(TH2F* hSF, float pt, float muonEta){
 }
 
 std::array<float,4> getLeptonWeight(TH2F* hSFID, TH2F* hSFIso, TGraphAsymmErrors* grSF, float pt, float muonEta){
-  float maxval = 499.99;
+  float maxval = 119.99;
 
   float searchEta=fabs( muonEta );
   float searchPt=TMath::Min( pt , maxval );
@@ -248,7 +312,7 @@ std::array<float,4> getLeptonWeight(TH2F* hSFID, TH2F* hSFIso, TGraphAsymmErrors
   errorIso = hSFID->GetBinError( thisBinIso );
 
   //cout << "Mu Iso" << endl;
-  //cout << "Nom = " << nomvalIso << " Err = " << errorIso << endl;
+  //cout << "Bin = " << thisBinID << "Nom = " << nomvalIso << " Err = " << errorIso << endl;
 
   float nomvalTrk = 0;
   float errorTrkHigh = 0;
