@@ -2,7 +2,7 @@ import BatchUtils
 
 class Sciptlist:
     def __init__(self, cmsswpath, basepath, batchtype, scriptpath = "scripts/", logpath = "logs/", errorpath = "logs/", outputpath = "output/"):
-        self.scipts = []
+        self.scripts = []
         self.basepath = basepath
         self.system = batchtype
 
@@ -19,7 +19,7 @@ class Sciptlist:
                        "err" : self.errorpath,
                        "output" : self.outputpath }
 
-    def addScripts(self, jobname , executionstring, outputname ):
+    def addScript(self, jobname , executionstring, outputname ):
         self.scripts.append(Script(self.cmsswpath, jobname, self.paths, executionstring, outputname))
 
     def submission(self):
@@ -41,9 +41,9 @@ class Sciptlist:
             dictForJSON[script.name] = script.getDict()
 
         with open(filename, 'w') as f:
-            f.write(json.dumps(dictForJSON))
+            f.write(json.dumps(dictForJSON, indent=4))
 class Script:
-    def __init__(self, cmssw, paths, name, execstring, output):
+    def __init__(self, cmssw, name, paths, execstring, output):
         import time
         lt = time.localtime()
 
@@ -71,7 +71,7 @@ class Script:
 
         self.executionstring = execstring
 
-        BatchUtils.create_script(self.name, self.cmssw, self.base, self.executionstring)
+        BatchUtils.create_script(self.name, self.cmsswpath, self.base, self.executionstring)
 
     def getDict(self):
         retdict = {"CreationTime" : self.creationtime,
