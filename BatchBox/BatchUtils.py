@@ -50,7 +50,7 @@ def create_script(name, cmsswbase, scriptpath, execString):
     #script+='export X509_USER_PROXY=/afs/cern.ch/user/k/koschwei/x509up_u88606\n'
     script+='export X509_USER_PROXY=/mnt/t3nfs01/data01/shome/koschwei/.x509up_u649\n'
     script+= execString+"\n"
-    filename=scriptpath+'/'+outfilename+'.sh'
+    filename=scriptpath+'/'+outfilename
     f=open(filename,'w')
     f.write(script)
     f.close()
