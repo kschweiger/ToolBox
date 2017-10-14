@@ -2,7 +2,7 @@ class jets:
     """
     Simple event container for jets
     """
-    def __init__(self, ptcut = 25, etacut = 2.5, CSVcut = 0.84, HTminpt = 30):
+    def __init__(self, ptcut = 25, etacut = 2.5, CSVcut = 0.84, HTminpt = 30, JetID = "loose"):
         self.ptcut = ptcut
         self.etacut = etacut
         self.CSVcut = CSVcut
@@ -16,6 +16,13 @@ class jets:
         self.nCSVM = 0
         self.HT = 0
 
+        if JetID in ["loose", "tight", "tightLepVeto"]:
+            self.JetID = JetID
+        else:
+            self.JetID = None
+            print "not supported JetID passes. Using None."
+        self.additionalVarsSet = False
+
     def reset(self):
         self.jets = []
         self.bjets = []
@@ -25,19 +32,32 @@ class jets:
         self.nCSVM = 0
         self.HT = 0
 
-    def add(self, pt, eta, phi, csv):
+        self.additionalVarsSet = False
+
+    def add(self, pt, eta, phi, csv,
+            NHEF = -1, NEmEF = -1, CNHEF = -1, CEmEF = -1,
+            CMult = -1, muFrac = -1, NConst = -1):
         #print "adding jet "+str(self.nJets)+"_",pt, eta, phi, csv
         if pt > self.ptcut and abs(eta) < self.etacut:
-            self.jets.append(jet(pt, eta, phi, csv))
-            if pt > self.HTminpt:
-                self.HT += pt
-                self.nJetsCUT += 1
-            if pt > 40:
-                self.nJets40 += 1
-            if csv > self.CSVcut:
-                self.bjets.append(jet(pt, eta, phi, csv))
-                self.nCSVM += 1
-            self.nJets += 1
+            currentjet = jet(pt, eta, phi, csv)
+            if NHEF != -1 and NEmEF != -1 and CNHEF != -1 and CEmEF != -1 and CMult != -1 and muFrac != -1 and NConst != -1:
+                currentjet.setadditionalVars(NHEF, NEmEF, CNHEF, CEmEF, CMult, muFrac, NConst)
+                self.additionalVarsSet = True
+            if ((self.JetID == "loose" and currentjet.PFJetIDLoose) or
+                (self.JetID == "tight" and currentjet.PFJetIDTight) or
+                (self.JetID == "tightLepVeto" and currentjet.PFJetIDTightLepVeto) or
+                (self.JetID is None) ):
+                if pt > self.HTminpt:
+                    self.HT += pt
+                    self.nJetsCUT += 1
+                if pt > 40:
+                    self.nJets40 += 1
+                if csv > self.CSVcut:
+                    self.bjets.append(jet(pt, eta, phi, csv))
+                    self.nCSVM += 1
+                self.nJets += 1
+                self.jets.append(currentjet)
+
 
     def HT4Jets(self):
         if self.nJetsCUT >= 4:
@@ -112,6 +132,37 @@ class jet:
         self.eta = eta
         self.phi = phi
         self.csv = csv
+
+        self.addVarsSet = False
+        self.neutralHadEFrac = 0
+        self.neutralEmEFrac = 0
+        self.chargedHadEFrac = 0
+        self.chargedEmEFrac = 0
+        self.chargedMult = 0
+        self.muonFraction = 0
+        self.numConstituents = 0
+
+        self.PFJetIDLoose = False
+        self.PFJetIDTight = False
+        self.PFJetIDTightLepVeto = False
+
+    def setadditionalVars(self, NHEF, NEmEF, CNHEF, CEmEF, CMult, muFrac, NConst):
+        self.addVarsSet = True
+        self.neutralHadEFrac = NHEF
+        self.neutralEmEFrac = NEmEF
+        self.chargedHadEFrac = CNHEF
+        self.chargedEmEFrac = CEmEF
+        self.chargedMult = CMult
+        self.muonFraction = muFrac
+        self.numConstituents = NConst
+        if self.numConstituents > 1 and self.chargedMult > 0 and self.chargedHadEFrac > 0:
+            if self.neutralHadEFrac < 0.99 and self.neutralEmEFrac < 0.99 and self.chargedEmEFrac < 0.99:
+                self.PFJetIDLoose = True
+            if self.neutralHadEFrac < 0.90 and self.neutralEmEFrac < 0.90 and self.chargedEmEFrac < 0.99:
+                self.PFJetIDTight = True
+                if self.muonFraction < 0.8 and self.chargedEmEFrac < 0.90:
+                    self.PFJetIDTightLepVeto =  True
+
     def Print(self):
         print "Jet pt: {0}, eta: {1}, phi: {2}, csv {3}".format(self.pt, self.eta ,self.phi ,self.csv)
 
@@ -138,3 +189,4 @@ if __name__ == "__main__":
     ptoderedjets = offlineJets.getPTorderd()
     for jet in ptoderedjets:
         jet.Print()
+
