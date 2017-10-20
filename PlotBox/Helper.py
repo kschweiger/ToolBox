@@ -3,7 +3,7 @@ import collections
 
 luminosity = 35.920026
 
-colors = { "ddQCD": 9007, "qcd": 9007,
+colors = { "Multijet": 9007, "qcd": 9007,
            "ttH_hbb": 9001,
            "ttbarPlusBBbar": 9002,
            "ttbarPlus2B": 9003,
@@ -20,7 +20,7 @@ colors = { "ddQCD": 9007, "qcd": 9007,
            "TTbar_inc": ROOT.kRed+2}
 #histogram colors (index, r, b, g)
 col_tth     = ROOT.TColor(colors["ttH_hbb"], 44/255., 62/255., 167/255.)
-col_qcd     = ROOT.TColor(colors["ddQCD"], 102/255., 201/255., 77/255.)
+col_qcd     = ROOT.TColor(colors["Multijet"], 102/255., 201/255., 77/255.)
 col_ttbarBB = ROOT.TColor(colors["ttbarPlusBBbar"], 102/255., 0/255., 0/255.)
 col_ttbar2B = ROOT.TColor(colors["ttbarPlus2B"], 80/255., 0/255., 0/255.)
 col_ttbarB  = ROOT.TColor(colors["ttbarPlusB"], 153/255., 51/255., 51/255.)

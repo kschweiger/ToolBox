@@ -103,11 +103,14 @@ def getYieldsfromSparseHistos(filename):
 
 def formatForPieChart(yields):
     singleslices = ['ddQCD', 'ttbarOther', 'ttbarPlusCCbar', 'ttbarPlusB', 'ttbarPlus2B',  'ttbarPlusBBbar']
-    signalprocesses = ['ttH_hbb' , 'ttH_nonhbb']
+    signalprocesses = ['ttH_hbb' , 'ttH_nonhbb', "ttH_hcc", "ttH_hww", "ttH_hzz", "ttH_htt", "ttH_hgg", "ttH_hgluglu", "ttH_hzg"]
     danielColors = Helper.colors
     colors = []
     for sl in singleslices:
-        colors.append(danielColors[sl])
+        if sl == "ddQCD":
+            colors.append(danielColors["Multijet"])
+        else:
+            colors.append(danielColors[sl])
     #colors =  [ROOT.kGreen+2, ROOT.kRed-7, ROOT.kRed+1, ROOT.kRed-2, ROOT.kRed+2, ROOT.kRed+3]
     smallBKGsum = 0
     SIGNALsum = 0
@@ -125,16 +128,16 @@ def formatForPieChart(yields):
 
 def getPieChart(processes, yields, colors, cat):
     #Style stuff
-    nicenames = ["ddQCD","t#bar{t}+lf", "t#bar{t}+c#bar{c}", "t#bar{t}+b", "t#bar{t}+2b", "t#bar{t}+b#bar{b}", "t#bar{t}H", "Other Bkg"]
-    niceTitle = {"j7t3" : "7 jets, 3 b-tags",
-                 "j7t4" : "7 jets, #geq 4 b-tags",
-                 "j8t3" : "8 jets, 3 b-tags",
-                 "j8t4" : "8 jets, #geq 4 b-tags",
-                 "j9t3" : "#geq 9 jets, 3 b-tags",
-                 "j9t4" : "#geq 9 jets, #geq 4 b-tags"}
+    nicenames = ["Multijet","t#bar{t}+lf", "t#bar{t}+c#bar{c}", "t#bar{t}+b", "t#bar{t}+2b", "t#bar{t}+b#bar{b}", "t#bar{t}H", "Other Bkg"]
+    niceTitle = {"j7t3" : "7 jets, 3 b tags",
+                 "j7t4" : "7 jets, #geq 4 b tags",
+                 "j8t3" : "8 jets, 3 b tags",
+                 "j8t4" : "8 jets, #geq 4 b tags",
+                 "j9t3" : "#geq 9 jets, 3 b tags",
+                 "j9t4" : "#geq 9 jets, #geq 4 b tags"}
 
     chart = ROOT.TPie("Chart_"+cat, "Chart_"+cat, len(processes), array('f', yields))
-    chart.SetTitle("#scale[1.6]{#bf{"+niceTitle[cat]+"}}")
+    chart.SetTitle("")
     #print chart.GetTitleOffset()
     #chart.GetTitleSize()
     for iprocess, process in enumerate(processes):
@@ -194,8 +197,8 @@ def main():
 
 
     if plotfromSparse:
-        pathtoSparse = "/Users/korbinianschweiger/Code/data/ttH/sparseHistos/V25_lepVetoLoose_systematics_v1_evFix/"
-        files = {"CR" : "merged_CR.root",
+        pathtoSparse = "/Users/korbinianschweiger/Code/data/ttH/sparseHistos/V25_lepVetoLoose_systematics_v1_topPt/"
+        files = {#"CR" : "merged_CR.root",
                  #"VR" : "merged_VR_ddQCD.root",
                  #"CR2" : "merged_CR2.root",
                  "SR" : "merged_SR_ddQCD.root"
@@ -212,6 +215,12 @@ def main():
                 SBs[key][cat] = getSoverB(processes, yields)
 
     #print charts
+    niceTitle = {"j7t3" : "7 jets, 3 b tags",
+                 "j7t4" : "7 jets, #geq 4 b tags",
+                 "j8t3" : "8 jets, 3 b tags",
+                 "j8t4" : "8 jets, #geq 4 b tags",
+                 "j9t3" : "#geq 9 jets, 3 b tags",
+                 "j9t4" : "#geq 9 jets, #geq 4 b tags"}
     for key in charts:
         c1 = ROOT.TCanvas("c1"+key,"c1"+key,1300, 720)
 
@@ -230,14 +239,34 @@ def main():
         c1.cd(5).SetBottomMargin(0)
         c1.cd(6).SetBottomMargin(0)
         SBlabel = {}
+        Title = {}
 
         for icat, cat in enumerate(catorder):
             c1.cd(icat+1)
             #print charts[key][cat]
             charts[key][cat].Draw("")
+            if cat == "j9t3":
+                Title[cat] = ROOT.TLatex(0.5, 0.93, "#bf{#scale[1.95]{"+niceTitle[cat]+"}}")
+                Title[cat].SetTextFont(42)
+                Title[cat].SetTextAlign(21)
+            elif cat == "j9t4":
+                Title[cat] = ROOT.TLatex(0.5, 0.93, "#bf{#scale[1.95]{"+niceTitle[cat]+"}}")
+                Title[cat].SetTextFont(42)
+                Title[cat].SetTextAlign(21)
+            elif cat.endswith("t3"):
+                Title[cat] = ROOT.TLatex(0.5, 0.93, "#bf{#scale[1.95]{"+niceTitle[cat]+"}}")
+                Title[cat].SetTextFont(42)
+                Title[cat].SetTextAlign(21)
+            else:
+                Title[cat] = ROOT.TLatex(0.5, 0.93, "#bf{#scale[1.95]{"+niceTitle[cat]+"}}")
+                Title[cat].SetTextFont(42)
+                Title[cat].SetTextAlign(21)
+            Title[cat].Draw("same")
             if printSoverB:
                 S, B = SBs[key][cat]
-                SBlabel[cat] = ROOT.TLatex(0.22, 0.8445, "S/B = {:5.4f}, S/#sqrt{{B}} = {:5.4f}".format(S/B,S/math.sqrt(B)))
+                SBlabel[cat] = ROOT.TLatex(0.5, 0.8445, "#scale[1.3]{"+"S/B = {:5.4f}, S/#sqrt{{B}} = {:5.4f}".format(S/B,S/math.sqrt(B))+"}")
+                SBlabel[cat].SetTextFont(42)
+                SBlabel[cat].SetTextAlign(21)
                 SBlabel[cat].Draw("same")
 
         """
@@ -249,13 +278,15 @@ def main():
         testchart.Draw("")
         """
         c1.cd(0)
-        cms = ROOT.TLatex( 0.05, 0.94, '#scale[1.4]{#bf{CMS}} #it{Preliminary}')
+        cms = ROOT.TLatex( 0.03, 0.935, '#scale[1.2]{#scale[1.4]{#bf{CMS}} #it{Supplementary}}')
         cms.SetTextFont(42)
         cms.Draw("same")
 
+        """
         regionlabel = ROOT.TLatex(0.75, 0.94, regions[key])
         regionlabel.SetTextFont(42)
         regionlabel.Draw("same")
+        """
 
         leg.SetX1(0.82)
         leg.SetY1(0.1)
