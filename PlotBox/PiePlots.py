@@ -214,6 +214,16 @@ def main():
                 charts[key][cat], leg = getPieChart(processes, yields, colors, cat)
                 SBs[key][cat] = getSoverB(processes, yields)
 
+                """
+                if cat == "j8t4":
+                    c1 = ROOT.TCanvas("c1", "c1", 800, 800)
+                    c1.cd()
+
+                    charts[key][cat].Draw()
+                    raw_input("")
+                    exit()
+                """
+
     #print charts
     niceTitle = {"j7t3" : "7 jets, 3 b tags",
                  "j7t4" : "7 jets, #geq 4 b tags",
