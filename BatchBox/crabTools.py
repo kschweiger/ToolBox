@@ -18,6 +18,26 @@ def kill(directories, dryrun = False):
                     os.system("crab kill {0}/{1}".format(directory, dir_))
 
 
+def status(directories, dryrun = False):
+    for directory in directories:
+        print "--------------------------------------------------------------"
+        dirs = os.walk(directory)
+        subdirs = next(dirs)[1]
+        
+        if "inputs" in subdirs and "results" in subdirs:
+            if dryrun:
+                print "crab status {0}".format(directory)
+            else:
+                os.system("crab status {0}".format(directory))
+        else:
+            for dir_ in subdirs:
+                print "--------------------------------------------------------------"
+                if dryrun:
+                    print "crab status {0}/{1}".format(directory, dir_)
+                else:
+                    os.system("crab status {0}/{1}".format(directory, dir_))
+
+                    
 
 def resubmit(directories, blacklist = None, whitelist = None, maxmemory = None, walltime = None, dryrun = False):
     for directory in directories:
@@ -59,6 +79,7 @@ if __name__ == "__main__":
     parser.add_argument('--dir', action="store", required=True, help="Directory of all jobs", nargs='+', type=str)
     parser.add_argument("--kill", action = "store_true", help="Kill jobs")
     parser.add_argument("--resubmit", action = "store_true", help="resubmit jobs")
+    parser.add_argument("--status", action = "store_true", help="job status")
     parser.add_argument("--dryrun", action = "store_true", help="Instead of executing the command the command is printed")
     parser.add_argument("--blacklist", action = "store", help = "Blacklist for resubmission", nargs='+', type=str, default = None)
     parser.add_argument("--whitelist", action = "store", help = "Blacklist for resubmission", nargs='+', type=str, default = None)
@@ -81,3 +102,6 @@ if __name__ == "__main__":
 
     if args.resubmit:
         resubmit(args.dir, args.blacklist, args.whitelist, args.maxmemory, args.walltime, args.dryrun)
+
+    if args.status:
+        status(args.dir, args.dryrun)
