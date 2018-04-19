@@ -17,7 +17,8 @@ def kill(directories, dryrun = False):
                 else:
                     os.system("crab kill {0}/{1}".format(directory, dir_))
 
-
+    return True
+                
 def status(directories, dryrun = False):
     for directory in directories:
         print "--------------------------------------------------------------"
@@ -37,7 +38,7 @@ def status(directories, dryrun = False):
                 else:
                     os.system("crab status {0}/{1}".format(directory, dir_))
 
-                    
+    return True                
 
 def resubmit(directories, blacklist = None, whitelist = None, maxmemory = None, walltime = None, dryrun = False):
     for directory in directories:
@@ -73,6 +74,9 @@ def resubmit(directories, blacklist = None, whitelist = None, maxmemory = None, 
                 else:
                     os.system(command)
 
+    return True
+
+
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description='Handling crab jobs')
@@ -87,9 +91,13 @@ if __name__ == "__main__":
     parser.add_argument("--walltime", action = "store", help = "Maximum wall time for resubmission in hours! HOURS! (Crab default 1315 minutes - 21h 50min)", type=int, default = None)
     args = parser.parse_args()
 
-    if args.kill and args.resubmit:
+    if int(args.kill) + int(args.resubmit) + int(args.status) > 1:
         print "Either killing or resubmitting"
         exit()
+    elif int(args.kill) + int(args.resubmit) + int(args.status) == 0:
+        print "Please set at least on of the arguments"
+        print "    --kill | --status | --resubmit"
+    
 
     if args.dryrun:
         print "         +--------------------------------------------------+"
@@ -98,10 +106,24 @@ if __name__ == "__main__":
         print "         +--------------------------------------------------+"
         
     if args.kill:
-        kill(args.dir, args.dryrun)
+        ret = kill(args.dir, args.dryrun)
 
     if args.resubmit:
-        resubmit(args.dir, args.blacklist, args.whitelist, args.maxmemory, args.walltime, args.dryrun)
+        ret = resubmit(args.dir, args.blacklist, args.whitelist, args.maxmemory, args.walltime, args.dryrun)
 
     if args.status:
-        status(args.dir, args.dryrun)
+        ret = status(args.dir, args.dryrun)
+
+
+
+    if ret is True and not args.dryrun:
+        wdir = os.getcwd()
+        if not os.path.isfile(wdir+"/crabTools.log"):
+            os.system("touch "+wdir+"/crabTools.log")
+
+        runcommand = "python "
+        for arg in sys.argv:
+            runcommand += arg + " "
+            
+        with open(wdir+"/crabTools.log", "a") as logfile:
+            logfile.write(runcommand)
