@@ -140,12 +140,18 @@ def showJobInfo(scripts, checks, finishedJobs, failedJobs):
         if namekey in failedJobs:
             nfailed += 1
 
+    if nfailed > 0:
+        print "--- Failed Jobs ----"
+        for job in failedJobs:
+            print ".",job
     print "----- Job Info -----"
     print "Jobs running: {0}".format(nrunning)
     print "Jobs queued: {0}".format(nqueued)
     print "Jobs finished {0}".format(nfinished)
     print "Jobs failed: {0}".format(nfailed)
     print "--------------------"
+
+    
 
 def main(json, askbeforeResubmitting, JobstoResubmit):
     scripts = ScriptHandling.initScirptListfromJSON(json)
@@ -158,7 +164,7 @@ def main(json, askbeforeResubmitting, JobstoResubmit):
 
         showJobInfo(scripts, checks, finishedjobs, jobnames)
 
-        if len(jobs) >= 0:
+        if len(jobs) >= 1:
             if raw_input("Start resubmission? [y/n] ") == "y":
                 resubmit(scripts, jobs, askbeforeResubmitting)
 

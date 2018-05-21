@@ -1,7 +1,7 @@
 import BatchUtils
 
 class Sciptlist:
-    def __init__(self, cmsswpath, basepath, batchtype, scriptpath = "scripts/", logpath = "logs/", errorpath = "logs/", outputpath = "output/"):
+    def __init__(self, cmsswpath, basepath, batchtype, scriptpath = "scripts/", logpath = "logs/", errorpath = "logs/", outputpath = "output/", envNames = None):
         self.scripts = []
         self.scriptsDict = {}
         self.scriptnames = []
@@ -25,8 +25,11 @@ class Sciptlist:
         self.successKeys = []
         self.failKeys = []
 
-    def addScript(self, jobname , executionstring, outputname, fromJSON = False ):
-        thisScript = Script(self.cmsswpath, jobname, self.paths, executionstring, outputname, fromJSON)
+        self.envNames = envNames
+        #print self.envNames
+
+    def addScript(self, jobname , executionstring, outputname, fromJSON = False, envVals = None):
+        thisScript = Script(self.cmsswpath, jobname, self.paths, executionstring, outputname, fromJSON,  envNames = self.envNames, envVals = envVals)
         self.scripts.append(thisScript)
         self.scriptsDict[jobname] = thisScript
         self.scriptnames.append(jobname)
@@ -56,7 +59,8 @@ class Sciptlist:
                                      "paths" : self.paths,
                                      "successKeys" : self.successKeys,
                                      "failedKeys" : self.failKeys,
-                                     "cmssw" : self.cmsswpath }
+                                     "cmssw" : self.cmsswpath,
+                                     "envNames" : self.envNames}
                       }
         for script in self.scripts:
             dictForJSON[script.name] = script.getDict()
@@ -67,8 +71,9 @@ class Sciptlist:
     def getScriptsByName(self, name):
         if name in self.scriptnames:
             return self.scriptsDict[name]
+        
 class Script:
-    def __init__(self, cmssw, name, paths, execstring, output, fromJSON, isSubmitted = False):
+    def __init__(self, cmssw, name, paths, execstring, output, fromJSON, isSubmitted = False, envNames = None, envVals = None):
         import time
         lt = time.localtime()
 
@@ -94,9 +99,17 @@ class Script:
 
         self.isSubmitted = isSubmitted
 
+        self.envNames = envNames
+        self.envVals = envVals
+        #print self.envVals
+        
         self.executionstring = execstring
         if not fromJSON:
-            BatchUtils.create_script(self.scriptname, self.cmsswpath, self.scriptpath, self.executionstring)
+            if envVals is None:
+                BatchUtils.create_script(self.scriptname, self.cmsswpath, self.scriptpath, self.executionstring)
+            else:
+                #print "hallo"
+                BatchUtils.create_script(self.scriptname, self.cmsswpath, self.scriptpath, self.executionstring, envNames = self.envNames, envVals = self.envVals)
 
 
     def getDict(self):
@@ -107,7 +120,8 @@ class Script:
                    "scriptfile" : self.scriptpath+"/"+self.scriptname,
                    "batchID" : self.batchID,
                    "submitted" : self.isSubmitted,
-                   "execstring" : self.executionstring}
+                   "execstring" : self.executionstring,
+                   "envVals" : self.envVals}
         return retdict
 
     def printScriptInfo(self):
@@ -118,6 +132,9 @@ class Script:
         print "outfile", self.outpath+"/"+self.outfilename
         print "scriptfile", self.scriptpath+"/"+self.scriptname
         print "batchID", self.batchID
+        if self.envNames is not None:
+            print "envNames:", self.envNamess
+            print "envVals", self.envVals
         #print "execstring", self.executionstring
 
     def submit(self, batchsystem):
@@ -145,7 +162,7 @@ def initScirptListfromJSON(jsonfile):
 
     #print readJSON
 
-    scripts = Sciptlist(readJSON["General"]["cmssw"], readJSON["General"]["basepath"], readJSON["General"]["batchsystem"])
+    scripts = Sciptlist(readJSON["General"]["cmssw"], readJSON["General"]["basepath"], readJSON["General"]["batchsystem"], envNames = readJSON["General"]["envNames"])
 
     for key in readJSON["General"]["successKeys"]:
         scripts.addSuccessKey(key)
@@ -156,7 +173,7 @@ def initScirptListfromJSON(jsonfile):
     for key in readJSON:
         if key != "General":
             #print readJSON[key]["outfile"]
-            scripts.addScript(key, readJSON[key]["execstring"], readJSON[key]["outfile"].split("/")[-1], True)
+            scripts.addScript(key, readJSON[key]["execstring"], readJSON[key]["outfile"].split("/")[-1], True, envVals=readJSON[key]["envVals"])
             scripts.getScriptsByName(key).isSubmitted = readJSON[key]["submitted"]
             scripts.getScriptsByName(key).batchID = readJSON[key]["batchID"]
 
