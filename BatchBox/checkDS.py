@@ -47,11 +47,12 @@ def getLumisInDS(dasetname, dbs_instance, countEvents = False, printOnlyResults 
     nfiles = 0
     totalEvents = 0
     files = {}
+    MeanLSperFile = 0
     for answer in returnQuery.split("\n"):
         answer_ = answer.split(" ")
         if len(answer_)>2:
             lfnName = answer_[0]
-            run = answer_[2]
+            run = answer_[1]
             lumis = answer_[2][1:-1]
             if not files.has_key(lfnName):
                 files[lfnName] = {run : lumis.split(",") }
@@ -59,9 +60,12 @@ def getLumisInDS(dasetname, dbs_instance, countEvents = False, printOnlyResults 
                 files[lfnName].update({run : lumis.split(",") })
     for filename in files:
         nfiles += 1
-        for LSinRun in files[filename]:
-            nLS = len(LSinRun)
+        fileLS = 0
+        LSperFile = 0
+        for run in files[filename]:
+            nLS = len(files[filename][run])
             totalLS += nLS
+            fileLS += nLS
         if countEvents:
             fileInfos = getfileInfos(filename, dbs_instance)
             try:
@@ -72,21 +76,28 @@ def getLumisInDS(dasetname, dbs_instance, countEvents = False, printOnlyResults 
             else:
                 nEventsinFile = fileInfos["file"][0]["nevents"]
             totalEvents += nEventsinFile
+            LSperFile = nEventsinFile/float(fileLS)
+            MeanLSperFile += LSperFile
         else:
             nEventsinFile = "not Counted"
         if printOnlyResults:
-            print "File {0} has {1} LS and {2} events".format(filename, nLS, nEventsinFile)
-    return totalLS, nfiles,totalEvents, "Dataset {0} has {1} LS in {2} files and {3} events".format(dasetname, totalLS, nfiles,totalEvents)
+            print "File {0} has {1} LS and {2} events --> Events/LS={3}".format(filename, fileLS, nEventsinFile, LSperFile)
+    if countEvents and nfiles > 0:
+        MeanLSperFile = MeanLSperFile/float(nfiles)
+    else:
+        MeanLSperFile = 0
+    return totalLS, nfiles,totalEvents,MeanLSperFile, "Dataset {0} has {1} LS in {2} files and {3} events -->  Per file: Mean Events/LS {4} ".format(dasetname, totalLS, nfiles,totalEvents,MeanLSperFile)
     
 def getInfo(dasetname, dbs_instance, countEvents, printOnlyResults, splitting = None):
     infos = getLumisInDS(dasetname, dbs_instance, countEvents, printOnlyResults)
     if splitting is None:
-        print infos[3]
+        print infos[4]
     else:
         nJobs = infos[0]/splitting
         if infos[0]%splitting != 0:
             nJobs += 1
-        print "{0} --> {1} jobs with splitting: {2}".format(infos[3], nJobs, splitting)
+        events = infos[2] 
+        print "{0} --> {1} jobs with splitting: {2} / ~ {3} evt per Job".format(infos[4], nJobs, splitting, events/float(nJobs))
     
 
 if __name__ == "__main__":
