@@ -39,15 +39,10 @@ def getfileInfos(lfnFileName, dbs_instance, onlyDBS = True):
             services = j["das"]["services"]
             if "dbs3:files" in services:
                 return j
-    
 
-def getLumisInDS(dasetname, dbs_instance, countEvents = False, printOnlyResults = False):
-    returnQuery = queryGOClient("lumi run file","dataset",dasetname, dbs_instance)
-    totalLS = 0
-    nfiles = 0
-    totalEvents = 0
+def parseLumis(dasetname, dbs_instance):
     files = {}
-    MeanLSperFile = 0
+    returnQuery = queryGOClient("lumi run file","dataset",dasetname, dbs_instance)    
     for answer in returnQuery.split("\n"):
         answer_ = answer.split(" ")
         if len(answer_)>2:
@@ -58,6 +53,17 @@ def getLumisInDS(dasetname, dbs_instance, countEvents = False, printOnlyResults 
                 files[lfnName] = {run : lumis.split(",") }
             else:
                 files[lfnName].update({run : lumis.split(",") })
+    return files
+                
+def getLumisInDS(dasetname, dbs_instance, countEvents = False, printOnlyResults = False):
+    totalLS = 0
+    nfiles = 0
+    totalEvents = 0
+    
+    MeanLSperFile = 0
+
+    files = parseLumis(dasetname, dbs_instance)
+    
     for filename in files:
         nfiles += 1
         fileLS = 0
@@ -87,6 +93,43 @@ def getLumisInDS(dasetname, dbs_instance, countEvents = False, printOnlyResults 
     else:
         MeanLSperFile = 0
     return totalLS, nfiles,totalEvents,MeanLSperFile, "Dataset {0} has {1} LS in {2} files and {3} events -->  Per file: Mean Events/LS {4} ".format(dasetname, totalLS, nfiles,totalEvents,MeanLSperFile)
+
+def countLumisJSON(dasetname, dbs_instance, json):
+    expandedJSON = expandJSON(json)
+    files = parseLumis(dasetname, dbs_instance)
+    totalLS = 0
+    nfiles = 0
+    for file_ in files:
+        nfiles += 1
+        nLSinFile = 0
+        for run in files[file_]:
+            if not expandedJSON.has_key(run):
+                continue
+            validLSinRun = expandedJSON[run]
+            LSinFile = files[file_][run]
+            nLS = 0
+            for LS in LSinFile:
+                if int(LS) in validLSinRun:
+                   nLS += 1
+            nLSinFile += nLS
+        totalLS += nLSinFile
+    print "Valid LS in Dataset {0}: {1}".format(dasetname ,totalLS) 
+
+def expandJSON(fileName):
+    with open(fileName, 'r') as f:
+        LSfromFile = yaml.safe_load(f) #json loads all entries as unicode (u'..')
+    expandedJSON = {}
+    for run in LSfromFile:
+        expandedLS = []
+        for block in LSfromFile[run]:
+            firstLS, secondLS = block[0], block[1]
+            for i in range(firstLS, secondLS+1):
+                expandedLS.append(i)
+        expandedJSON[run] = expandedLS
+
+    return expandedJSON
+
+
     
 def getInfo(dasetname, dbs_instance, countEvents, printOnlyResults, splitting = None):
     infos = getLumisInDS(dasetname, dbs_instance, countEvents, printOnlyResults)
@@ -141,10 +184,21 @@ if __name__ == "__main__":
         default=None
     )
     
+    argumentparser.add_argument(
+        "--countValidLS",
+        action = "store_false",
+        help = "Disable intermediate printouts",
+    )
+    
+    
 
     arguments = argumentparser.parse_args()
 
 
     getInfo(arguments.DASName, arguments.dbs, arguments.countEvents, arguments.printOnlyResult, arguments.split)
+    
+    if arguments.countValidLS:
+        countLumisJSON(arguments.DASName, arguments.dbs, "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt")
+    
     
     
