@@ -54,7 +54,7 @@ def resubmit(directories, blacklist = None, whitelist = None, maxmemory = None, 
         if maxmemory is not None:
             command = "{0} --maxmemory={1}".format(command, maxmemory)
         if walltime is not None:
-            command = "{0} --maxmemory={1}".format(command, walltime*60)
+            command = "{0} --maxjobruntime={1}".format(command, walltime*60)
 
         command_ = command
         dirs = os.walk(directory)
