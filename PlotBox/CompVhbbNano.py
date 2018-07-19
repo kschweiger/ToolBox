@@ -3,16 +3,16 @@ import copy
 
 ##########################################################################
 # Settings
-toprocess = 150000
+toprocess = 1500000000
 #xsec94X = 373.3
 #xsec80X = 831.76
-xsec94X = 373.3#0.2934045
+xsec94X = 90.578#0.2934045
 xsec80X = 831.76#0.2934045
 
 lumi16 = 35.920026
 lumi17 = 41.29
-nVhbbFiles = 40
-nNanoFiles = 20
+nVhbbFiles = 10#800
+nNanoFiles = 1#10
 skipGenCut = False
 ##########################################################################
 
@@ -35,8 +35,10 @@ for line in lines:
         vhbbInput.append(a[0])
 
 ##########################################################################################################
-nanoDataset = "/mnt/t3nfs01/data01/shome/koschwei/tth/2017Data/CMSSW_9_4_6_patch1/src/TTH/MEAnalysis/gc/datasets/ttH_AH_v1/TTToHadronic_TuneCP5_13TeV-powheg-pythia8.txt"
+#nanoDataset = "/mnt/t3nfs01/data01/shome/koschwei/tth/2017Data/CMSSW_9_4_6_patch1/src/TTH/MEAnalysis/gc/datasets/ttH_AH_v1/TTToHadronic_TuneCP5_13TeV-powheg-pythia8.txt"
 #nanoDataset = "/mnt/t3nfs01/data01/shome/koschwei/tth/2017Data/CMSSW_9_4_6_patch1/src/TTH/MEAnalysis/gc/datasets/ttH_AH_v1/ttHTobb_M125_TuneCP5_13TeV-powheg-pythia8.txt"
+#nanoDataset = "/mnt/t3nfs01/data01/shome/koschwei/tth/2017Data/CMSSW_9_4_6_patch1/src/TTH/MEAnalysis/gc/datasets/ttH_AH_TriggerSF_v1/TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8.txt"
+nanoDataset = "/mnt/t3nfs01/data01/shome/koschwei/tth/2017Data/CMSSW_9_4_6_patch1/src/TTH/MEAnalysis/gc/datasets/ttH_AH_TriggerSF_v1/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8.txt"
 #nanoDataset = "/mnt/t3nfs01/data01/shome/koschwei/tth/2017Data/CMSSW_9_4_6_patch1/src/TTH/MEAnalysis/gc/datasets/ttH_AH_v1/QCD_HT1000to1500_TuneCP5_13TeV-madgraph-pythia8.txt"
 #nanoDataset = "/mnt/t3nfs01/data01/shome/koschwei/tth/2017Data/CMSSW_9_4_6_patch1/src/TTH/MEAnalysis/gc/datasets/ttH_AH_v1/QCD_HT1500to2000_TuneCP5_13TeV-madgraph-pythia8.txt"
 #nanoDataset = "/mnt/t3nfs01/data01/shome/koschwei/tth/2017Data/CMSSW_9_4_6_patch1/src/TTH/MEAnalysis/gc/datasets/ttH_AH_v1/QCD_HT700to1000_TuneCP5_13TeV-madgraph-pythia8.txt"
@@ -93,7 +95,8 @@ for iEv in range(vhbbnEvents):
     if skipGenCut:
         genCut = True
     else:
-        genCut = vhbbTree.nGenWZQuark == 4
+        genCut = vhbbTree.nGenWZQuark == 0
+        #print vhbbTree.nGenWZQuark, genCut
     if genCut:
         if nprocessed%10000 == 0:
             print "Events processed: ",nprocessed
