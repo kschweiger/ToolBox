@@ -146,6 +146,8 @@ def loopMiniAOD(files, hnum, hdenom, hnLS, Triggers2Save, maxEvents = -1, isMC =
             hnum[3].Fill(var2Fill)
         if Tresults[Triggers2Save[5]] == 1 and Tresults[Triggers2Save[0]] == 1:
             hnum[4].Fill(var2Fill)
+        if (Tresults[Triggers2Save[5]] == 1 or Tresults[Triggers2Save[4]] == 1 or Tresults[Triggers2Save[3]] == 1) and Tresults[Triggers2Save[0]] == 1:
+            hnum[5].Fill(var2Fill)
 
     print "Events processed: {0}".format(i)
     print "Total time MiniAOD: {0:8f}".format(time.time()-t0)
@@ -162,7 +164,8 @@ def getHistograms(miniAOD_File, outputfile = "miniAODTriggerEfficiency", maxEven
     hNumerator3 = ROOT.TH1F("hnum_6j1t","hnum_6j1t",50,500,2500)
     hNumerator4 = ROOT.TH1F("hnum_6j2t","hnum_6j2t",50,500,2500)
     hNumerator5 = ROOT.TH1F("hnum_4j3t","hnum_4j3t",50,500,2500)
-    hNumerator = [hNumerator1, hNumerator2, hNumerator3, hNumerator4, hNumerator5]
+    hNumerator6 = ROOT.TH1F("hnum_or","hnum_or",50,500,2500)
+    hNumerator = [hNumerator1, hNumerator2, hNumerator3, hNumerator4, hNumerator5, hNumerator6]
     #######################
     hnLS = ROOT.TH1F("hnLS","hnLS",1,0,1)
     #######################
@@ -189,7 +192,8 @@ def getHistograms(miniAOD_File, outputfile = "miniAODTriggerEfficiency", maxEven
     of.Close
 
 if __name__ == "__main__":
-    miniAOD_File = ["root://cms-xrd-global.cern.ch//store/data/Run2017C/SingleMuon/MINIAOD/31Mar2018-v1/910000/BE068F10-3D38-E811-A58C-FA163E152BEF.root",
+    miniAOD_File = ["root://cms-xrd-global.cern.ch//store/mc/RunIIFall17MiniAODv2/TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/50000/C0F1ABB8-6B43-E811-984D-0025905B860E.root",
+                    #"root://cms-xrd-global.cern.ch//store/data/Run2017C/SingleMuon/MINIAOD/31Mar2018-v1/910000/BE068F10-3D38-E811-A58C-FA163E152BEF.root",
                     #"root://cms-xrd-global.cern.ch//store/data/Run2017C/SingleMuon/MINIAOD/31Mar2018-v1/90000/FE63323C-3137-E811-899A-FA163E35E61A.root"
     ]
     

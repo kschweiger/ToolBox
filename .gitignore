@@ -99,3 +99,15 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+
+#emacs
+*.*~
+
+#mac
+*DS_Store*
+*._*
+
+#outputs
+*.pdf
+*.root
