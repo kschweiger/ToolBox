@@ -90,10 +90,10 @@ if __name__ == "__main__":
                        "nBCSVM" : (5,1.5,6.5),
                        "ht30" : (20,500,2500),
     }
-    #outfile = "correlation_ttSL_TriggerSel"
-    #selection = "is_sl && abs(leps_pdgId[0]) == 13 && (HLT_BIT_HLT_IsoMu27)&&(ht30>500 && jets_pt[5]>40 && nBCSVM>=2) && (HLT_ttH_FH)"
-    outfile = "correlation_ttSL_BaseSel"
-    selection = "is_sl && abs(leps_pdgId[0]) == 13 && (HLT_BIT_HLT_IsoMu27)&&(ht30>500 && jets_pt[5]>40 && nBCSVM>=2)"
+    outfile = "correlation_ttSL_TriggerSel"
+    selection = "is_sl && abs(leps_pdgId[0]) == 13 && (HLT_BIT_HLT_IsoMu27)&&(ht30>500 && jets_pt[5]>40 && nBCSVM>=2) && (HLT_ttH_FH)"
+    #outfile = "correlation_ttSL_BaseSel"
+    #selection = "is_sl && abs(leps_pdgId[0]) == 13 && (HLT_BIT_HLT_IsoMu27)&&(ht30>500 && jets_pt[5]>40 && nBCSVM>=2)"
 
     
     getCorrelation(inp, varsAndbinning, outfile, selection)
