@@ -6,6 +6,7 @@ import subprocess
 
 import json
 import yaml
+import copy
 
 
 def queryGOClient(querytype, datatype, name, dbs_instance, json = False):
@@ -54,7 +55,64 @@ def parseLumis(dasetname, dbs_instance):
             else:
                 files[lfnName].update({run : lumis.split(",") })
     return files
-                
+
+
+def genMCJSON(dasetname, dbs_instance, outputName):
+    print "RUNNING genMCJSON"
+    files = parseLumis(dasetname, dbs_instance)
+    lumis4Json = {}
+    for file_ in files:
+        #print files[file_]
+        for run in  files[file_]:
+            if not lumis4Json.has_key(run):
+                lumis4Json[run] = []
+            intList = []
+            for ls in files[file_][run]:
+                intList.append([int(ls),int(ls)])
+            lumis4Json[run] += intList
+            #print lumis4Json
+
+    print "Validating:"
+    total = 0
+    for run in lumis4Json:
+        for ls in lumis4Json[run]:
+            total += ls[1]-ls[0]+1
+    print "Found {0} ls in the output data".format(total)
+    
+    with open(outputName+'.json', 'w') as outfile:
+        json.dump(lumis4Json, outfile)
+
+    return lumis4Json
+
+def genSplitMCJSON(dasetname, dbs_instance, outputName, nLSperJob):
+    maxLS = 10000*nLSperJob
+    lumis4Json = genMCJSON(dasetname, dbs_instance, outputName)
+    total = 0
+    allLS = []
+    thisLS = []
+    for run in lumis4Json:
+        for ls in lumis4Json[run]:
+            thisL = ls[0]
+            total += 1
+            thisLS.append([thisL, thisL])  
+            if total == maxLS-100:
+                allLS.append({run : copy.copy(thisLS)})
+                thisLS = []
+                total = 0
+    allLS.append({run : copy.copy(thisLS)})
+    print "------------------------------------------------"
+    for iData, data in enumerate(allLS):
+        print "Validating:"
+        total = 0
+        for run in data:
+            for ls in data[run]:
+                total += ls[1]-ls[0]+1
+        print "Found {0} ls in the output data".format(total)
+        with open(outputName+"_"+str(iData)+'.json', 'w') as outfile:
+            json.dump(data, outfile)
+
+
+    
 def getLumisInDS(dasetname, dbs_instance, countEvents = False, printOnlyResults = False):
     totalLS = 0
     nfiles = 0
@@ -63,6 +121,7 @@ def getLumisInDS(dasetname, dbs_instance, countEvents = False, printOnlyResults 
     MeanLSperFile = 0
 
     files = parseLumis(dasetname, dbs_instance)
+
     
     for filename in files:
         nfiles += 1
@@ -189,16 +248,34 @@ if __name__ == "__main__":
         action = "store_false",
         help = "Disable intermediate printouts",
     )
+    argumentparser.add_argument(
+        "--genJSON",
+        action = "store_true",
+        help = "Disable intermediate printouts",
+    )
+    argumentparser.add_argument(
+        "--LSperJob",
+        action = "store",
+        type = int,
+        help = "Cacluate the JSON files for large jobs where the 10k limit is passed",
+        default = None,
+    )
     
     
-
+    
+    
     arguments = argumentparser.parse_args()
 
-
-    getInfo(arguments.DASName, arguments.dbs, arguments.countEvents, arguments.printOnlyResult, arguments.split)
+    if not arguments.genJSON:
+        getInfo(arguments.DASName, arguments.dbs, arguments.countEvents, arguments.printOnlyResult, arguments.split)
     
-    if arguments.countValidLS:
-        countLumisJSON(arguments.DASName, arguments.dbs, "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt")
-    
-    
-    
+        if arguments.countValidLS:
+            countLumisJSON(arguments.DASName, arguments.dbs, "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/Final/Cert_294927-306462_13TeV_PromptReco_Collisions17_JSON.txt")
+    else:
+        fileName = "SplitJSON_"+arguments.DASName.split("/")[1].split("-")[0]
+        print fileName
+        if arguments.LSperJob is None:
+            genMCJSON(arguments.DASName, arguments.dbs, fileName)
+        else:
+            genSplitMCJSON(arguments.DASName, arguments.dbs, fileName, arguments.LSperJob)
+            
