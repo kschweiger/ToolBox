@@ -92,7 +92,7 @@ def fromatJSON(injson):
     return formattedJSON
 
     
-def mergeJSON(workdir, inputs, outname):
+def mergeJSON(workdir, inputs, outname, save=True):
     """
     Merge a list of CMS lumi jsons into one Lumi json
 
@@ -108,10 +108,39 @@ def mergeJSON(workdir, inputs, outname):
 
     mergedJSON = merge(data)
     mergedJSON = fromatJSON(mergedJSON)
+
+    if save:
+        with open(workdir+"/"+outname+".json", "w") as f:
+            json.dump(mergedJSON, f)
+
+    return mergedJSON
+
+def substract(workdir, first, second, outname):
+    """
+    Function to substract first from second cms lumi json
+    """
+    if isinstance(first, str):
+        first = readJSON(workdir+"/"+first)
+    if isinstance(second, str):
+        second = readJSON(workdir+"/"+second)
+
+    first = expandJSON(first)
+    second = expandJSON(second)
+
+    resulting = {}
+    for run in first:
+        if run in second.keys():
+            runSet = set(first[run])
+            runSet.difference_update(set(second[run]))
+            if len(runSet) != 0:
+                resulting[run] = list(runSet)
+        else:
+            resulting[run] = first[run]
+        
+    resulting = fromatJSON(resulting)
     with open(workdir+"/"+outname+".json", "w") as f:
-        json.dump(mergedJSON, f)
-    
-    
+        json.dump(resulting, f)
+
 if __name__ == "__main__":
     import argparse
 
@@ -149,6 +178,11 @@ if __name__ == "__main__":
         help = "Filename of the output file (pass no path or extetion)",
         default = "output"
     )
+    argumentparser.add_argument(
+        "--substract",
+        action = "store_true",
+        help = "Will substract 2nd and following passed files form 1st file",
+    )
 
     arguments = argumentparser.parse_args()
     if arguments.count:
@@ -159,3 +193,9 @@ if __name__ == "__main__":
     if arguments.merge:
         mergeJSON(arguments.workdir, arguments.input, arguments.outname)
         
+    if arguments.substract:
+        assert len(arguments.input) >= 2
+        firstJSON = arguments.input[0]
+        secondJSON = mergeJSON(arguments.workdir, arguments.input[1::], None, False)
+        
+        substract(arguments.workdir, firstJSON, secondJSON, arguments.outname)
