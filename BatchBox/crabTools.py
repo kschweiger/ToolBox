@@ -1,9 +1,47 @@
-import os,sys
+""" crabTools.py
 
-def kill(directories, dryrun = False):
+Script for bulk handling status, kill and resubmit request for crab. This is tailored to the way the ttX MEM
+analyzer is setup to submit crab jobs.
+
+See --help message for more detail.
+
+The script will automatically log all command line calls in the crabTools.log for easy reexecution.
+"""
+import os,sys
+import re
+
+def getMatchingDirs(directory, subdircriteria):
+    allDirs = os.walk(directory)
+    allDirs = next(allDirs)[1]
+    matchingDirs = []
+    for dir_ in allDirs:
+        for crit in subdircriteria:
+            if "*" in crit:
+                wildcardIdentifiers = crit.split("*")
+                if wildcardIdentifiers[0] == "":
+                    wildcardIdentifiers.remove("")
+                if wildcardIdentifiers[-1] == "":
+                    wildcardIdentifiers.remove("")
+                if crit.startswith("*"):
+                    crit = "(.*)"
+                else:
+                    crit = ""
+                for ident in wildcardIdentifiers:
+                    crit += "{0}(.*)".format(ident)
+            else:
+                crit = "(.*){0}(.*)".format(crit)
+            search = re.search(crit, dir_)
+            if search is not None:
+                matchingDirs.append(dir_)
+    return matchingDirs
+
+def kill(directories, subdircriteria, dryrun = False):
     for directory in directories:
-        dirs = os.walk(directory)
-        subdirs = next(dirs)[1]
+        if subdircriteria is None:
+            dirs = os.walk(directory)
+            subdirs = next(dirs)[1]
+        else:
+            subdirs = getMatchingDirs(directory, subdircriteria)
         
         if "inputs" in subdirs and "results" in subdirs:
             if dryrun:
@@ -19,11 +57,14 @@ def kill(directories, dryrun = False):
 
     return True
                 
-def status(directories, dryrun = False):
+def status(directories, subdircriteria, dryrun = False):
     for directory in directories:
         print "--------------------------------------------------------------"
-        dirs = os.walk(directory)
-        subdirs = next(dirs)[1]
+        if subdircriteria is None:
+            dirs = os.walk(directory)
+            subdirs = next(dirs)[1]
+        else:
+            subdirs = getMatchingDirs(directory, subdircriteria)
         
         if "inputs" in subdirs and "results" in subdirs:
             if dryrun:
@@ -40,7 +81,7 @@ def status(directories, dryrun = False):
 
     return True                
 
-def resubmit(directories, blacklist = None, whitelist = None, maxmemory = None, walltime = None, dryrun = False):
+def resubmit(directories, subdircriteria, blacklist = None, whitelist = None, maxmemory = None, walltime = None, dryrun = False):
     for directory in directories:
         if directory.endswith("/"):
             directory = directory[:-1] #remove tailing /
@@ -57,8 +98,12 @@ def resubmit(directories, blacklist = None, whitelist = None, maxmemory = None, 
             command = "{0} --maxjobruntime={1}".format(command, walltime*60)
 
         command_ = command
-        dirs = os.walk(directory)
-        subdirs = next(dirs)[1]
+        if subdircriteria is None:
+            dirs = os.walk(directory)
+            subdirs = next(dirs)[1]
+        else:
+            subdirs = getMatchingDirs(directory, subdircriteria)
+
 
         if "inputs" in subdirs and "results" in subdirs:
             command = "{0} {1}".format(command_, directory)
@@ -77,13 +122,17 @@ def resubmit(directories, blacklist = None, whitelist = None, maxmemory = None, 
     return True
 
 
-def getJobSummary(directories, brief):
+def getJobSummary(directories, subdircriteria, brief):
     import subprocess
 
     
     for directory in directories:
-        dirs = os.walk(directory)
-        subdirs = next(dirs)[1]
+        if subdircriteria is None:
+            dirs = os.walk(directory)
+            subdirs = next(dirs)[1]
+        else:
+            subdirs = getMatchingDirs(directory, subdircriteria)
+
         if "inputs" in subdirs and "results" in subdirs:
             proc = subprocess.Popen("crab status {0}".format(directory),
                                     shell=True,stdout=subprocess.PIPE)
@@ -156,6 +205,8 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description='Handling crab jobs')
     parser.add_argument('--dir', action="store", required=True, help="Directory of all jobs", nargs='+', type=str)
+    parser.add_argument('--subdir', action="store", default = None,  help="Criteria for subfolder selection. Possible to set multiple. E.g. *ttH* or *JetHT*",
+                        nargs='+', type=str)
     parser.add_argument("--kill", action = "store_true", help="Kill jobs")
     parser.add_argument("--resubmit", action = "store_true", help="resubmit jobs")
     parser.add_argument("--status", action = "store_true", help="job status")
@@ -169,11 +220,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if int(args.kill) + int(args.resubmit) + int(args.status) + int(args.summary) > 1:
-        print "Either killing or resubmitting"
+        print "Please set exactly one of the arguments"
+        print "    --kill | --status | --resubmit | --summary"
         exit()
     elif int(args.kill) + int(args.resubmit) + int(args.status)  + int(args.summary)  == 0:
-        print "Please set at least on of the arguments"
-        print "    --kill | --status | --resubmit"
+        print "Please set at least one of the arguments"
+        print "    --kill | --status | --resubmit | --summary"
     
 
     if args.dryrun:
@@ -183,14 +235,13 @@ if __name__ == "__main__":
         print "         +--------------------------------------------------+"
         
     if args.kill:
-        ret = kill(args.dir, args.dryrun)
+        ret = kill(args.dir, args.subdir, args.dryrun)
 
     if args.resubmit:
-        ret = resubmit(args.dir, args.blacklist, args.whitelist, args.maxmemory, args.walltime, args.dryrun)
+        ret = resubmit(args.dir, args.subdir, args.blacklist, args.whitelist, args.maxmemory, args.walltime, args.dryrun)
 
     if args.status:
-        ret = status(args.dir, args.dryrun)
-
+        ret = status(args.dir, args.subdir, args.dryrun)
 
     if args.summary:
         ret = getJobSummary(args.dir, args.brief)
