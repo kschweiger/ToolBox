@@ -257,7 +257,15 @@ if __name__ == "__main__":
         default = None,
     )
     
-    
+    argumentparser.add_argument(
+        "--prefix",
+        action = "store",
+        help = "Prefix for spplitJSON",
+        type=str,
+        required = False,
+        default = "defPrefix"
+    )
+
     
     
     arguments = argumentparser.parse_args()
@@ -268,7 +276,7 @@ if __name__ == "__main__":
         if arguments.countValidLS:
             countLumisJSON(arguments.DASName, arguments.dbs, "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/Final/Cert_294927-306462_13TeV_PromptReco_Collisions17_JSON.txt")
     else:
-        fileName = "SplitJSON_"+arguments.DASName.split("/")[1].split("-")[0]
+        fileName = "SplitJSON_"+arguments.prefix+"_"+str(arguments.LSperJob)+"LSperJob_"+arguments.DASName.split("/")[1].split("-")[0]
         print fileName
         if arguments.LSperJob is None:
             genMCJSON(arguments.DASName, arguments.dbs, fileName)
