@@ -23,16 +23,12 @@ def getfileInfos(lfnFileName, dbs_instance, onlyDBS = True):
     # This can return multiple structures for the file e.g. different services (dbs and phedex
     # We will only return the only with the infomatiron we need 
     load =queryGOClient("","file",lfnFileName, dbs_instance, json = True)
-    if len(load.split(" ,")) == 2:
-        ret1 = load.split(" ,")[0][2:] #remove [\n in the beginning of the returned string
-        ret2 = load.split(" ,")[1][1:-3]#remove \n in the beginning and \n]\n in the end of the returned string
-        json1 = json.loads(ret1)
-        json2 = json.loads(ret2)
-        allJSONs = [json1, json2]
-        #print json.dumps(json2, sort_keys=True,indent=4, separators=(',', ': '))
-    else:
-        print "Fileinfo encountered something new! Check! Exiting!"
-        exit()
+    load = load.replace("[\n","")
+    load = load.replace("\n]\n","")
+    allJSONs = []
+    for j in load.split(" ,"):
+        allJSONs.append(json.loads(j))
+
     if not onlyDBS:
         return allJSONs
     else:
