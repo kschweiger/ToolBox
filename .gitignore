@@ -111,3 +111,6 @@ ENV/
 #outputs
 *.pdf
 *.root
+
+BatchBox/*.txt
+BatchBox/*.json
